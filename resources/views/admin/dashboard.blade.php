@@ -1,0 +1,9 @@
+@extends('admin.layout')
+@section('title','Ringkasan')
+@section('action')<a class="button" href="/" target="_blank" rel="noopener noreferrer">Lihat Website <x-icon name="arrow-up-right"/></a>@endsection
+@section('content')
+<div class="admin-welcome"><div><span class="section-kicker light">YOUR EVENT, YOUR STORY</span><h2>Halo, {{ auth()->user()->name }}.<br>Siap membuka banyak kemungkinan?</h2><p>Kelola cerita, kampus, dan orang-orang di balik Campus Expo.</p></div><x-icon name="spark"/></div>
+<div class="admin-stats">@foreach($counts as $label=>$count)<div><span>{{ $label }}</span><strong>{{ str_pad($count,2,'0',STR_PAD_LEFT) }}</strong><x-icon name="arrow-up-right"/></div>@endforeach</div>
+<div class="dashboard-grid"><section class="admin-panel"><span class="section-kicker">EDISI ACARA AKTIF</span><h2>{{ $event?->name??'Belum ada acara aktif' }}</h2><p>{{ $event?->event_start_at->locale('id')->translatedFormat('d F Y, H:i') }} @if($event)WIB · {{ $event->venue_name }}@endif</p><a class="inline-link" href="{{ $event?'/admin/event-editions/'.$event->id.'/edit':'/admin/event-editions/create' }}">Kelola edisi acara <x-icon name="arrow-up-right"/></a></section><section class="admin-panel"><span class="section-kicker">LANGKAH CEPAT</span><div class="quick-actions"><a href="/admin/members/create"><x-icon name="users"/>Tambah Anggota <span>+</span></a><a href="/admin/campuses/create"><x-icon name="cap"/>Tambah Kampus <span>+</span></a><a href="/admin/schedules/create"><x-icon name="clock"/>Tambah Jadwal <span>+</span></a></div></section></div>
+<div class="admin-note"><x-icon name="book"/><div><strong>Jadikan website ini milik sekolahmu.</strong><p>Data awal adalah contoh. Ganti nama sekolah, foto ilustrasi, lokasi, kontak, dan konten sebelum publikasi. Aktifkan satu edisi acara untuk menampilkan anggota serta jadwal pada tahun yang sesuai.</p></div></div>
+@endsection

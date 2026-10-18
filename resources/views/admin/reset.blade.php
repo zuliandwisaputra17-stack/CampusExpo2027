@@ -1,0 +1,4 @@
+@extends('admin.auth-layout')
+@section('title','Awal yang baru.')
+@section('description','Gunakan kata sandi baru yang kuat, minimal 12 karakter.')
+@section('content')<form action="/admin/reset-password" method="post" class="auth-form">@csrf<input type="hidden" name="token" value="{{ $token }}"><div class="form-field"><label for="email">Email</label><input id="email" type="email" name="email" value="{{ old('email',request('email')) }}" autocomplete="email" required></div><div class="form-field"><label for="password">Kata sandi baru</label><input id="password" type="password" name="password" minlength="12" autocomplete="new-password" required></div><div class="form-field"><label for="confirmation">Ulangi kata sandi</label><input id="confirmation" type="password" name="password_confirmation" minlength="12" autocomplete="new-password" required></div><button class="button">Simpan Kata Sandi <x-icon name="check"/></button></form>@endsection
