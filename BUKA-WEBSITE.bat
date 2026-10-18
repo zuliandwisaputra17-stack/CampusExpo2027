@@ -14,9 +14,9 @@ if errorlevel 1 (
   exit /b 1
 )
 if not exist vendor\autoload.php (
-  echo Jalankan composer install terlebih dahulu, atau gunakan paket ZIP lengkap.
-  pause
-  exit /b 1
+  echo Menyiapkan dependency Laravel. Tunggu sebentar...
+  composer install --no-interaction --prefer-dist
+  if errorlevel 1 goto failed
 )
 if not exist .env (
   copy .env.example .env >nul
@@ -24,6 +24,19 @@ if not exist .env (
   if errorlevel 1 goto failed
 )
 if not exist database\database.sqlite type nul > database\database.sqlite
+if not exist public\build\manifest.json (
+  where npm >nul 2>nul
+  if errorlevel 1 (
+    echo Node.js/npm belum tersedia. Install Node.js LTS dari https://nodejs.org lalu jalankan file ini lagi.
+    pause
+    exit /b 1
+  )
+  echo Menyiapkan aset frontend. Tunggu sebentar...
+  npm ci --no-audit --no-fund
+  if errorlevel 1 goto failed
+  npm run build
+  if errorlevel 1 goto failed
+)
 php artisan migrate --force
 if errorlevel 1 goto failed
 php artisan expo:seed-demo
