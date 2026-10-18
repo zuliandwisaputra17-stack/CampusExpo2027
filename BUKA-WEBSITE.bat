@@ -7,9 +7,9 @@ if errorlevel 1 (
   pause
   exit /b 1
 )
-php -r "exit(PHP_VERSION_ID >= 80400 ? 0 : 1);"
+php -r "exit(PHP_VERSION_ID >= 80200 ? 0 : 1);"
 if errorlevel 1 (
-  echo Website ini memerlukan PHP 8.4 atau lebih baru. Pilih versi PHP di Laragon.
+  echo Website ini memerlukan PHP 8.2 atau lebih baru. Pilih versi PHP di Laragon.
   pause
   exit /b 1
 )
