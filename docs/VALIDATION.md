@@ -1,22 +1,22 @@
-# Verifikasi instance development
+# Verifikasi desain biru muda
 
-Dilakukan 18 Oktober 2026 pada PHP 8.4.24, Node.js 24.19.0, SQLite, dan Chromium 154.
+Dilakukan 19 Oktober 2026 pada PHP 8.4.24, Node.js 24.19.0, SQLite, dan Chromium 154.
 
 | Pemeriksaan | Hasil |
 |---|---|
-| `php artisan test --compact` | 24 tes lulus, 143 assertions |
+| `php artisan test` | 27 tes lulus, 176 assertions |
 | `vendor/bin/pint --test` | Lulus |
-| `npm run build` | Lulus; aset produksi tersedia |
-| `npm run test:browser` | 49 pemeriksaan lulus |
-| `npm run test:a11y` | Tidak ada pelanggaran axe WCAG A/AA yang terdeteksi pada homepage 1440 dan 390 px |
-| `scripts/setup.sh` dijalankan ulang | Lulus; migration aman dan konten yang sudah ada dipertahankan |
-| `php artisan config:cache`, `route:cache`, `view:cache` | Lulus; homepage tetap merespons HTTP 200 |
-| `/`, `/admin/login`, `/up` | HTTP 200 |
+| `npm run typecheck` | Lulus |
+| `npm run build` | Lulus; React, CSS, dan manifest produksi tersedia |
+| `npm run test:browser` | 65 pemeriksaan lulus |
+| `npm run test:a11y` | Tidak ada pelanggaran axe WCAG A/AA terdeteksi pada homepage 1440 dan 390 px |
 
-Pemeriksaan browser mencakup klik kampus → filter anggota → URL yang dapat dibagikan, pencarian, empty state, reset, filter jurusan/prodi, kontrol carousel dan keyboard, FAQ, galeri, semua aset gambar, menu mobile, login/logout, seluruh daftar CMS, pengurutan jadwal, create/edit/delete kampus hingga hasil publik, dan penolakan request tanpa CSRF. Countdown diuji pada waktu tetap sebelum mulai, saat mulai, tepat akhir, dan setelah akhir dalam timezone WIB.
+Pengujian browser mencakup panorama kampus melengkung, jeda/putar, reduced motion, anggota polaroid dengan drag/keyboard/tombol, putaran daftar panjang, hasil filter kosong/satu/dua anggota, URL filter yang dapat dibagikan, dan direktori tanpa JavaScript. Pencarian, jurusan/prodi, FAQ, lightbox, gambar, navigasi HP, login/logout, daftar CMS, urutan jadwal, CRUD kampus, serta CSRF juga diperiksa.
 
-Pada viewport 360, 390, dan 430 px tidak ditemukan overflow horizontal dokumen. Screenshot development berada di `/workspace/artifacts` pada environment ini.
+Tautan Instagram dan LinkedIn diuji dari pembuatan anggota lewat form admin hingga tampil sebagai tautan pada profil publik. Pengujian Laravel memeriksa penyimpanan, pembaruan, pengosongan tautan, kolom opsional, dan penolakan skema URL yang tidak aman. Tidak diperlukan perubahan skema database.
 
-Belum diverifikasi: MySQL/MariaDB production, SMTP sungguhan, Safari/Firefox/Edge, perangkat fisik, target Lighthouse, hosting publik, DNS/TLS, backup dan pemulihannya. Foto, nama sekolah, daftar perwakilan, dan jadwal saat ini adalah contoh. Website belum dideploy ke domain production.
+Countdown diuji sebelum mulai, saat mulai, tepat akhir, dan setelah akhir acara dengan zona waktu WIB. Viewport 360, 390, dan 430 px tidak menunjukkan overflow horizontal. Screenshot desktop/HP tersedia di `/workspace/artifacts` pada environment pengujian.
 
-Konfigurasi environment `install_script` dan `start_skill` sudah disimpan sebagai draft. Penyimpanan draft tidak mempublikasikan snapshot; review dan simpan di pengaturan environment, lalu Publish jika ingin mengaktifkannya untuk task berikutnya.
+Paket `downloads/CampusExpo2027-Update-Biru.zip` dibuat dari daftar file eksplisit serta manifest aset produksi. Integritas arsip diperiksa; tidak menyertakan `.env`, database, vendor, composer lockfile, storage, atau foto unggahan pengguna.
+
+Batas pemeriksaan: pengujian otomatis memakai SQLite dan Chromium di cloud. MySQL Laragon, browser Windows, Safari/Firefox, dan perangkat fisik belum dijalankan dari environment ini. Tidak ada migrasi baru. Akun dan data di komputer pengguna tidak diubah oleh task ini; pembaruan lokal diterapkan dengan menyalin paket sesuai [panduan](DESIGN-UPDATE.md).

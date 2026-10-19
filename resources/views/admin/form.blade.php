@@ -17,7 +17,8 @@ $required=str_contains($spec['rules'],'required');
 @if(in_array($spec['type'],['event','campus']))<select id="field-{{ $field }}" name="{{ $field }}" @required($required)><option value="">Pilih {{ strtolower($spec['label']) }}</option>@foreach($spec['type']==='event'?$events:$campuses as $option)<option value="{{ $option->id }}" @selected((string)$value===(string)$option->id)>{{ $option->name }}</option>@endforeach</select>
 @elseif($spec['type']==='textarea')<textarea name="{{ $field }}" id="field-{{ $field }}" rows="4" @required($required)>{{ $value }}</textarea>
 @elseif($spec['type']==='file')<div class="upload-field"><input type="file" name="{{ $field }}" id="field-{{ $field }}" accept="image/jpeg,image/png,image/webp" data-preview="preview-{{ $field }}" @required($resource==='galleries'&&!$item->exists)><small>JPG, PNG, WebP · maksimal 5 MB. Gambar dioptimalkan menjadi WebP.</small><img id="preview-{{ $field }}" src="{{ $item->$field?\App\Support\Media::url($item->$field):'' }}" alt="Preview {{ $spec['label'] }}" @unless($item->$field) hidden @endunless></div>
-@else<input id="field-{{ $field }}" name="{{ $field }}" type="{{ $spec['type'] }}" value="{{ $value }}" @required($required) @if($spec['type']==='number') min="0" @endif>@endif
+@else<input id="field-{{ $field }}" name="{{ $field }}" type="{{ $spec['type'] }}" value="{{ $value }}" @required($required) @if(isset($spec['placeholder'])) placeholder="{{ $spec['placeholder'] }}" @endif @if(isset($spec['help'])) aria-describedby="help-{{ $field }}" @endif @if($spec['type']==='number') min="0" @endif>@endif
+@if(isset($spec['help']))<small id="help-{{ $field }}">{{ $spec['help'] }}</small>@endif
 @endif
 @error($field)<span class="field-error">{{ $message }}</span>@enderror</div>@endforeach</div><div class="form-actions"><button class="button" type="submit">Simpan Perubahan <x-icon name="check"/></button><a href="/admin/{{ $resource }}">Batal</a></div></form>
 @endsection

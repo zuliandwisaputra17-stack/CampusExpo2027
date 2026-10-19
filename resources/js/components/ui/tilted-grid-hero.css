@@ -1,0 +1,21 @@
+.expo-reel {
+    position: relative;
+    width: 100%;
+    height: clamp(240px, 35vw, 410px);
+    overflow: hidden;
+    container-type: size;
+    isolation: isolate;
+}
+.expo-reel__band {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    transition: opacity .5s ease;
+}
+.expo-reel__tile { position: absolute; transform-style: preserve-3d; }
+.expo-reel__slice { position: absolute; top: 0; overflow: hidden; background: #dceefb; }
+.expo-reel__slice:first-child { border-radius: 16px 0 0 16px; }
+.expo-reel__slice:last-child { border-radius: 0 16px 16px 0; }
+.expo-reel__slice img { position: absolute; top: 0; max-width: none; object-fit: cover; }
+.expo-reel__empty { display: grid; place-items: center; height: 100%; color: #4a6881; }
+@media (prefers-reduced-motion: reduce) { .expo-reel__band { transition: none; } }

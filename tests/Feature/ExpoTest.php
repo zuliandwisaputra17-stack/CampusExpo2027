@@ -37,6 +37,11 @@ class ExpoTest extends TestCase
         return ['name' => 'Universitas Test', 'slug' => 'universitas-test', 'abbreviation' => 'UT', 'city' => 'Jakarta', 'province' => 'DKI Jakarta', 'official_url' => 'https://example.org', 'display_order' => 0, 'is_active' => 1];
     }
 
+    private function memberData(): array
+    {
+        return ['name' => 'Anggota Sosial', 'slug' => 'anggota-sosial', 'event_edition_id' => EventEdition::first()->id, 'campus_id' => Campus::first()->id, 'study_program' => 'S1 Informatika', 'display_order' => 0, 'is_active' => 1];
+    }
+
     public function test_public_page_uses_active_event_and_excludes_hidden_records(): void
     {
         $campus = Campus::first();
@@ -125,6 +130,65 @@ class ExpoTest extends TestCase
         $this->get('/')->assertDontSee('Test Anggota');
         $this->delete('/admin/members/'.$member->id)->assertRedirect();
         $this->assertSoftDeleted($member);
+    }
+
+    public function test_member_social_links_can_be_created_updated_and_cleared(): void
+    {
+        $this->actingAs($this->admin());
+        $existingMember = Member::first();
+        $existingAttributes = $existingMember->getAttributes();
+        $data = $this->memberData();
+        $links = ['instagram_url' => 'https://www.instagram.com/anggota/', 'linkedin_url' => 'https://www.linkedin.com/in/anggota/'];
+
+        $this->get('/admin/members/create')->assertOk()
+            ->assertSee('Link Instagram (opsional)')
+            ->assertSee('https://www.instagram.com/namapengguna/')
+            ->assertSee('Link LinkedIn (opsional)')
+            ->assertSee('https://www.linkedin.com/in/namapengguna/');
+        $this->post('/admin/members', [...$data, ...$links])->assertRedirect('/admin/members');
+        $member = Member::where('slug', $data['slug'])->firstOrFail();
+        $this->assertDatabaseHas('members', ['id' => $member->id, ...$links]);
+        $this->get('/admin/members/'.$member->id.'/edit')->assertOk()
+            ->assertSee($links['instagram_url'])
+            ->assertSee($links['linkedin_url']);
+
+        $updatedLinks = ['instagram_url' => 'https://www.instagram.com/profilbaru/', 'linkedin_url' => 'https://www.linkedin.com/in/profilbaru/'];
+        $this->put('/admin/members/'.$member->id, [...$data, ...$updatedLinks])->assertRedirect('/admin/members');
+        $this->assertDatabaseHas('members', ['id' => $member->id, ...$updatedLinks]);
+
+        $this->put('/admin/members/'.$member->id, [...$data, 'instagram_url' => '', 'linkedin_url' => ''])->assertRedirect('/admin/members');
+        $this->assertDatabaseHas('members', ['id' => $member->id, 'instagram_url' => null, 'linkedin_url' => null]);
+        $this->assertSame($existingAttributes, $existingMember->fresh()->getAttributes());
+    }
+
+    public function test_member_social_links_are_optional_and_omitted_fields_preserve_saved_links(): void
+    {
+        $this->actingAs($this->admin());
+        $data = $this->memberData();
+        $this->post('/admin/members', $data)->assertRedirect('/admin/members');
+        $member = Member::where('slug', $data['slug'])->firstOrFail();
+        $this->assertNull($member->instagram_url);
+        $this->assertNull($member->linkedin_url);
+
+        $links = ['instagram_url' => 'https://www.instagram.com/tersimpan/', 'linkedin_url' => 'https://www.linkedin.com/in/tersimpan/'];
+        $member->update($links);
+        $this->put('/admin/members/'.$member->id, [...$data, 'name' => 'Nama Diperbarui'])->assertRedirect('/admin/members');
+        $this->assertDatabaseHas('members', ['id' => $member->id, 'name' => 'Nama Diperbarui', ...$links]);
+    }
+
+    public function test_member_social_links_reject_unsafe_schemes_without_modifying_saved_profiles(): void
+    {
+        $this->actingAs($this->admin());
+        $data = $this->memberData();
+        $this->post('/admin/members', [...$data, 'instagram_url' => 'javascript:alert(1)', 'linkedin_url' => 'data:text/html,<script>alert(1)</script>'])
+            ->assertSessionHasErrors(['instagram_url', 'linkedin_url']);
+        $this->assertDatabaseMissing('members', ['slug' => $data['slug']]);
+
+        $links = ['instagram_url' => 'https://www.instagram.com/anggota/', 'linkedin_url' => 'https://www.linkedin.com/in/anggota/'];
+        $member = Member::create([...$data, ...$links]);
+        $this->put('/admin/members/'.$member->id, [...$data, 'instagram_url' => 'ftp://example.org/profile', 'linkedin_url' => 'javascript:alert(1)'])
+            ->assertSessionHasErrors(['instagram_url', 'linkedin_url']);
+        $this->assertDatabaseHas('members', ['id' => $member->id, ...$links]);
     }
 
     public function test_upload_rejects_non_image_and_oversized_image(): void
